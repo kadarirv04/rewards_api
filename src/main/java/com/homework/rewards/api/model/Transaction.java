@@ -3,9 +3,7 @@ package com.homework.rewards.api.model;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-/**
- * Transaction entity representing a purchase transaction
- */
+//Transaction entity representing a purchase transaction
 public class Transaction {
     
     private Long id;

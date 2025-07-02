@@ -2,6 +2,7 @@ package com.homework.rewards.api.controller;
 
 import com.homework.rewards.api.model.Customer;
 import com.homework.rewards.api.model.Transaction;
+import com.homework.rewards.api.service.RewardsService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +19,12 @@ public class ApiController {
     private static final List<Customer> customers = new ArrayList<>();
     private static final List<Transaction> transactions = new ArrayList<>();
     private static final AtomicLong txId = new AtomicLong(1);
+    private final RewardsService rewardsService;
+
+    public ApiController(RewardsService rewardsService) {
+        this.rewardsService = rewardsService;
+    }
+
     static {
         customers.add(new Customer(1L, "Alice"));
         customers.add(new Customer(2L, "Bob"));
@@ -36,7 +43,7 @@ public class ApiController {
             Map<YearMonth, Integer> monthly = new HashMap<>();
             int total = 0;
             for (Transaction t : txs) {
-                int points = calcPoints(t.getAmount());
+                int points = rewardsService.calcPoints(t.getAmount());
                 YearMonth ym = YearMonth.from(t.getDate());
                 monthly.put(ym, monthly.getOrDefault(ym, 0) + points);
                 total += points;
@@ -59,7 +66,7 @@ public class ApiController {
         Transaction transaction = new Transaction(txId.getAndIncrement(), customerId, amount, date);
         transactions.add(transaction);
         
-        int points = calcPoints(amount);
+        int points = rewardsService.calcPoints(amount);
         Customer customer = customers.stream().filter(c -> c.getId().equals(customerId)).findFirst().orElse(null);
         
         Map<String, Object> response = new HashMap<>();
@@ -74,33 +81,8 @@ public class ApiController {
         response.put("transaction", transactionInfo);
         
         response.put("pointsEarned", points);
-        response.put("pointsCalculation", getPointsExplanation(amount));
+        response.put("pointsCalculation", rewardsService.getPointsExplanation(amount));
         
         return ResponseEntity.ok(response);
-    }
-
-    private int calcPoints(BigDecimal amount) {
-        int points = 0;
-        if (amount.compareTo(new BigDecimal("100")) > 0) {
-            points += (amount.intValue() - 100) * 2 + 50;
-        } else if (amount.compareTo(new BigDecimal("50")) > 0) {
-            points += (amount.intValue() - 50);
-        }
-        return points;
-    }
-    
-    private String getPointsExplanation(BigDecimal amount) {
-        if (amount.compareTo(new BigDecimal("100")) > 0) {
-            int over100 = amount.intValue() - 100;
-            int pointsOver100 = over100 * 2;
-            int points50to100 = 50;
-            return String.format("$%d over $100 = %d × 2 = %d points, $50-$100 = %d points, Total = %d points", 
-                over100, over100, pointsOver100, points50to100, pointsOver100 + points50to100);
-        } else if (amount.compareTo(new BigDecimal("50")) > 0) {
-            int over50 = amount.intValue() - 50;
-            return String.format("$%d over $50 = %d × 1 = %d points", over50, over50, over50);
-        } else {
-            return "Amount under $50 = 0 points";
-        }
     }
 } 
