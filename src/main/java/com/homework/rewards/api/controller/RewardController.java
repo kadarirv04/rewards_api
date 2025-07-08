@@ -25,10 +25,7 @@ public class RewardController {
 
     @PostMapping("/transactions")
     public ResponseEntity<?> createTransaction(@RequestBody Map<String, Object> transactionRequest) {
-        Long customerId = Long.valueOf(transactionRequest.get("customerId").toString());
-        BigDecimal amount = new BigDecimal(transactionRequest.get("amount").toString());
-        LocalDate date = LocalDate.parse(transactionRequest.get("date").toString());
-        Map<String, Object> response = rewardService.createTransaction(customerId, amount, date);
+        Map<String, Object> response = rewardService.createTransaction(transactionRequest);
         return ResponseEntity.ok(response);
     }
 

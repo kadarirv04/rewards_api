@@ -102,6 +102,20 @@ public class RewardService {
         return result;
     }
 
+    public Map<String, Object> createTransaction(Map<String, Object> transactionRequest) {
+        if (transactionRequest == null) throw new IllegalArgumentException("Transaction request must not be null");
+        Object customerIdObj = transactionRequest.get("customerId");
+        Object amountObj = transactionRequest.get("amount");
+        Object dateObj = transactionRequest.get("date");
+        if (customerIdObj == null) throw new IllegalArgumentException("Customer ID must not be null");
+        if (amountObj == null) throw new IllegalArgumentException("Amount must not be null");
+        if (dateObj == null) throw new IllegalArgumentException("Date must not be null");
+        Long customerId = Long.valueOf(customerIdObj.toString());
+        BigDecimal amount = new BigDecimal(amountObj.toString());
+        LocalDate date = LocalDate.parse(dateObj.toString());
+        return createTransaction(customerId, amount, date);
+    }
+
     public Map<String, Object> createTransaction(Long customerId, BigDecimal amount, LocalDate date) {
         if (customerId == null) throw new IllegalArgumentException("Customer ID must not be null");
         if (amount == null || amount.compareTo(BigDecimal.ZERO) < 0) throw new IllegalArgumentException("Amount must be a positive number");
