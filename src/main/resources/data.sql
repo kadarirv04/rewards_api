@@ -1,0 +1,2 @@
+INSERT INTO customer (name) SELECT name FROM CSVREAD('classpath:customers.csv');
+INSERT INTO transaction (customer_id, amount, date) SELECT customer_id, amount, date FROM CSVREAD('classpath:transactions.csv'); 
