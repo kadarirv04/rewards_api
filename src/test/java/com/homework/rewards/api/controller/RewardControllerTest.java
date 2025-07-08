@@ -55,7 +55,7 @@ class RewardControllerTest {
 
     @Test
     void testCreateTransactionSuccess() throws Exception {
-        when(rewardService.createTransaction(anyLong(), any(BigDecimal.class), any(LocalDate.class)))
+        when(rewardService.createTransaction(any(Map.class)))
                 .thenReturn(transactionResponse);
         Map<String, Object> request = new HashMap<>();
         request.put("customerId", 1L);
@@ -71,7 +71,7 @@ class RewardControllerTest {
 
     @Test
     void testCreateTransactionCustomerNotFound() throws Exception {
-        when(rewardService.createTransaction(anyLong(), any(BigDecimal.class), any(LocalDate.class)))
+        when(rewardService.createTransaction(any(Map.class)))
                 .thenThrow(new NotFoundException("Customer not found with ID: 99"));
         Map<String, Object> request = new HashMap<>();
         request.put("customerId", 99L);
@@ -86,7 +86,7 @@ class RewardControllerTest {
 
     @Test
     void testCreateTransactionInvalidAmount() throws Exception {
-        when(rewardService.createTransaction(anyLong(), any(BigDecimal.class), any(LocalDate.class)))
+        when(rewardService.createTransaction(any(Map.class)))
                 .thenThrow(new IllegalArgumentException("Amount must be a positive number"));
         Map<String, Object> request = new HashMap<>();
         request.put("customerId", 1L);
