@@ -13,6 +13,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
+import com.homework.rewards.api.dto.RewardsSummaryResponseDto;
+import com.homework.rewards.api.dto.ResponseDto;
+import com.homework.rewards.api.dto.TransactionResponseDto;
 
 @SpringBootTest
 class RewardServiceTest {
@@ -49,10 +52,9 @@ class RewardServiceTest {
 
     @Test
     void testCreateTransactionSuccess() {
-        Map<String, Object> result = rewardService.createTransaction(customer.getId(), new BigDecimal("120.00"), LocalDate.now());
-        assertEquals("Transaction added successfully", result.get("message"));
-        assertTrue(result.containsKey("transaction"));
-        assertEquals(90, result.get("pointsEarned"));
+        TransactionResponseDto result = rewardService.createTransaction(customer.getId(), new BigDecimal("120.00"), LocalDate.now());
+        assertEquals("Transaction added successfully", result.getMessage());
+        assertEquals(90, result.getPointsEarned());
     }
 
     @Test
@@ -75,21 +77,21 @@ class RewardServiceTest {
 
     @Test
     void testGetAllCustomerRewards() {
-        Map<Long, Object> result = rewardService.getAllCustomerRewards();
-        assertTrue(result.containsKey(customer.getId()));
+        RewardsSummaryResponseDto result = rewardService.getAllCustomerRewards();
+        assertTrue(result.getRewards().containsKey(customer.getId()));
     }
 
     @Test
     void testGetLastThreeMonthsRewards() {
-        Map<Long, Object> result = rewardService.getLastThreeMonthsRewards();
-        assertTrue(result.containsKey(customer.getId()));
+        RewardsSummaryResponseDto result = rewardService.getLastThreeMonthsRewards();
+        assertTrue(result.getRewards().containsKey(customer.getId()));
     }
 
     @Test
     void testGetCustomerMonthRewards() {
         String yearMonth = LocalDate.now().getYear() + "-" + String.format("%02d", LocalDate.now().getMonthValue());
-        Map<String, Object> result = rewardService.getCustomerMonthRewards(customer.getId(), yearMonth);
-        assertEquals(customer.getId(), result.get("customerId"));
-        assertEquals(yearMonth, result.get("yearMonth"));
+        ResponseDto result = rewardService.getCustomerMonthRewards(customer.getId(), yearMonth);
+        assertEquals(customer.getId(), result.getCustomerId());
+        assertTrue(result.getMonthly().containsKey(yearMonth));
     }
 } 

@@ -1,5 +1,8 @@
 package com.homework.rewards.api.controller;
 
+import com.homework.rewards.api.dto.RewardsSummaryResponseDto;
+import com.homework.rewards.api.dto.ResponseDto;
+import com.homework.rewards.api.dto.TransactionResponseDto;
 import com.homework.rewards.api.exception.NotFoundException;
 import com.homework.rewards.api.service.RewardService;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,26 +32,19 @@ class RewardControllerTest {
     @MockBean
     private RewardService rewardService;
 
-    private Map<String, Object> transactionResponse;
+    private TransactionResponseDto transactionResponse;
 
     @BeforeEach
     void setUp() {
-        transactionResponse = new HashMap<>();
-        transactionResponse.put("message", "Transaction added successfully");
-        Map<String, Object> transactionInfo = new HashMap<>();
-        transactionInfo.put("id", 1L);
-        transactionInfo.put("customerId", 1L);
-        transactionInfo.put("customerName", "Test User");
-        transactionInfo.put("amount", new BigDecimal("120.00"));
-        transactionInfo.put("date", "2024-07-01");
-        transactionResponse.put("transaction", transactionInfo);
-        transactionResponse.put("pointsEarned", 90);
-        transactionResponse.put("pointsCalculation", "$20 over $100 = 20 × 2 = 40 points, $50-$100 = 50 points, Total = 90 points");
+        transactionResponse = new TransactionResponseDto();
+        transactionResponse.setMessage("Transaction added successfully");
+        transactionResponse.setPointsEarned(90);
+        transactionResponse.setPointsCalculation("$20 over $100 = 20 × 2 = 40 points, $50-$100 = 50 points, Total = 90 points");
     }
 
     @Test
     void testGetAllCustomerRewardsSuccess() throws Exception {
-        when(rewardService.getAllCustomerRewards()).thenReturn(new HashMap<>());
+        when(rewardService.getAllCustomerRewards()).thenReturn(new RewardsSummaryResponseDto());
         mockMvc.perform(get("/api/rewards"))
                 .andExpect(status().isOk());
     }
@@ -111,14 +107,14 @@ class RewardControllerTest {
 
     @Test
     void testGetLastThreeMonthsRewards() throws Exception {
-        when(rewardService.getLastThreeMonthsRewards()).thenReturn(new HashMap<>());
+        when(rewardService.getLastThreeMonthsRewards()).thenReturn(new RewardsSummaryResponseDto());
         mockMvc.perform(get("/api/rewards/last-three-months"))
                 .andExpect(status().isOk());
     }
 
     @Test
     void testGetCustomerMonthRewards() throws Exception {
-        when(rewardService.getCustomerMonthRewards(anyLong(), anyString())).thenReturn(new HashMap<>());
+        when(rewardService.getCustomerMonthRewards(anyLong(), anyString())).thenReturn(new ResponseDto());
         mockMvc.perform(get("/api/rewards/1/2024-05"))
                 .andExpect(status().isOk());
     }
