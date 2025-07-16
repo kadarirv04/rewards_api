@@ -16,6 +16,7 @@ import com.homework.rewards.api.dto.ResponseDto;
 import com.homework.rewards.api.dto.RewardsSummaryResponseDto;
 import com.homework.rewards.api.dto.TransactionResponseDto;
 import java.time.format.DateTimeParseException;
+import com.homework.rewards.api.util.RewardCalculationUtil;
 
 @Service
 public class RewardService {
@@ -28,36 +29,6 @@ public class RewardService {
         this.transactionRepository = transactionRepository;
     }
 
-    public int calculateRewardPoints(BigDecimal amount) {
-        BigDecimal points = BigDecimal.ZERO;
-        BigDecimal hundred = new BigDecimal("100");
-        BigDecimal fifty = new BigDecimal("50");
-        if (amount.compareTo(hundred) > 0) {
-            BigDecimal over100 = amount.subtract(hundred);
-            points = points.add(over100.multiply(new BigDecimal("2")));
-            points = points.add(fifty); // $50 between 50 and 100 always gets 1x points
-        } else if (amount.compareTo(fifty) > 0) {
-            BigDecimal over50 = amount.subtract(fifty);
-            points = points.add(over50);
-        }
-        return points.intValue();
-    }
-
-    public String getRewardPointsExplanation(BigDecimal amount) {
-        if (amount.compareTo(new BigDecimal("100")) > 0) {
-            int over100 = amount.intValue() - 100;
-            int pointsOver100 = over100 * 2;
-            int points50to100 = 50;
-            return String.format("$%d over $100 = %d × 2 = %d points, $50-$100 = %d points, Total = %d points",
-                over100, over100, pointsOver100, points50to100, pointsOver100 + points50to100);
-        } else if (amount.compareTo(new BigDecimal("50")) > 0) {
-            int over50 = amount.intValue() - 50;
-            return String.format("$%d over $50 = %d × 1 = %d points", over50, over50, over50);
-        } else {
-            return "Amount under $50 = 0 points";
-        }
-    }
-
     // Helper to build ResponseDto
     private ResponseDto buildResponseDto(Customer customer, List<Transaction> transactions, Set<YearMonth> filterMonths) {
         if (transactions == null) transactions = Collections.emptyList();
@@ -66,9 +37,9 @@ public class RewardService {
             .collect(Collectors.toList());
         Map<String, Integer> monthly = filtered.stream().collect(Collectors.groupingBy(
             t -> t.getDate().getYear() + "-" + String.format("%02d", t.getDate().getMonthValue()),
-            Collectors.summingInt(t -> calculateRewardPoints(t.getAmount()))
+            Collectors.summingInt(t -> RewardCalculationUtil.calculateRewardPoints(t.getAmount()))
         ));
-        int total = filtered.stream().mapToInt(t -> calculateRewardPoints(t.getAmount())).sum();
+        int total = filtered.stream().mapToInt(t -> RewardCalculationUtil.calculateRewardPoints(t.getAmount())).sum();
         return new ResponseDto(customer.getId(), customer.getName(), monthly, total);
     }
 
@@ -143,7 +114,7 @@ public class RewardService {
         transaction.setAmount(amount);
         transaction.setDate(date);
         transactionRepository.save(transaction);
-        int points = calculateRewardPoints(amount);
+        int points = RewardCalculationUtil.calculateRewardPoints(amount);
         return new TransactionResponseDto(
             "Transaction added successfully",
             transaction.getId(),
@@ -152,7 +123,7 @@ public class RewardService {
             transaction.getAmount(),
             transaction.getDate().toString(),
             points,
-            getRewardPointsExplanation(amount)
+            RewardCalculationUtil.getRewardPointsExplanation(amount)
         );
     }
 } 

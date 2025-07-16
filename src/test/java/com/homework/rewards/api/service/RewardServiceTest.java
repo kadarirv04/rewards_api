@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.homework.rewards.api.dto.RewardsSummaryResponseDto;
 import com.homework.rewards.api.dto.ResponseDto;
 import com.homework.rewards.api.dto.TransactionResponseDto;
+import com.homework.rewards.api.util.RewardCalculationUtil;
 
 @SpringBootTest
 class RewardServiceTest {
@@ -45,9 +46,9 @@ class RewardServiceTest {
 
     @Test
     void testCalculateRewardPoints() {
-        assertEquals(90, rewardService.calculateRewardPoints(new BigDecimal("120")));
-        assertEquals(10, rewardService.calculateRewardPoints(new BigDecimal("60")));
-        assertEquals(0, rewardService.calculateRewardPoints(new BigDecimal("40")));
+        assertEquals(90, RewardCalculationUtil.calculateRewardPoints(new BigDecimal("120")));
+        assertEquals(10, RewardCalculationUtil.calculateRewardPoints(new BigDecimal("60")));
+        assertEquals(0, RewardCalculationUtil.calculateRewardPoints(new BigDecimal("40")));
     }
 
     @Test
